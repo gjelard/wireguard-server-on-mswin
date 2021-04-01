@@ -1,0 +1,37 @@
+Private Sub EnableDisableICS(ByVal sPublicConnectionName, ByVal sPrivateConnectionName, ByVal bEnable)  
+    Dim bFound
+    Dim oNetSharingManager, oConnectionCollection, oItem, EveryConnection, objNCProps
+    Set oNetSharingManager = Wscript.CreateObject("HNetCfg.HNetShare.1") 
+    Set oConnectionCollection = oNetSharingManager.EnumEveryConnection
+    For Each oItem In oConnectionCollection
+        set EveryConnection = oNetSharingManager.INetSharingConfigurationForINetConnection(oItem)
+        set objNCProps = oNetSharingManager.NetConnectionProps(oItem)
+        If objNCProps.name = sPrivateConnectionName Then
+            bFound = True
+            'MsgBox("Starting Internet Sharing For: " & objNCProps.name)
+            If bEnable Then
+                EveryConnection.EnableSharing(1)
+            Else
+                EveryConnection.DisableSharing()
+            End If
+        End If
+    Next
+    Set oConnectionCollection = oNetSharingManager.EnumEveryConnection
+    For Each oItem In oConnectionCollection
+        Set EveryConnection = oNetSharingManager.INetSharingConfigurationForINetConnection(oItem)
+        Set objNCProps = oNetSharingManager.NetConnectionProps(oItem)
+        If objNCProps.name = sPublicConnectionName Then
+            bFound = True
+            'MsgBox("Internet Sharing Success For: " & objNCProps.name)
+            If bEnable Then
+                EveryConnection.EnableSharing(0)
+            Else
+                EveryConnection.DisableSharing()
+            End If
+        End If
+    Next
+ 
+End Sub  
+
+' Call SUB
+EnableDisableICS "Local Area Connection", "wg0_server", True
